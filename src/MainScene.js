@@ -2,9 +2,8 @@ import Phaser from 'phaser'
 
 export const gameSettings = {
   playerSpeed: 200,
-  maxPowerups: 2,
   powerUpVel: 50,
-  maxNumberOfChar: 5,
+  maxNumberOfChar: 2,
   maxNumberOfDifficulty: 50,
 };
 
@@ -22,13 +21,8 @@ export default class MainScene extends Phaser.Scene {
     this.background.setDisplaySize(this.game.scale.width, this.game.scale.height);
     this.background.setOrigin(0, 0);
 
-    this.chars = this.physics.add.group({
-      key: 'numbers',
-      frame: Array.from({length: 20}, (v, i) => i + 1),
-      randomFrame: true,
-      max: gameSettings.maxNumberOfChar,
-    });
-    this.chars.getChildren().forEach(go => this.resetChar(go));
+    this.chars = this.physics.add.group();
+    this.initChars();
 
     this.player = this.physics.add.sprite(this.game.scale.width / 2 - 8, this.game.scale.height - 64, "player");
     this.player.setScale(0.25);
@@ -79,7 +73,6 @@ export default class MainScene extends Phaser.Scene {
     this.spacebar = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SPACE);
     // --------------------------------------------------------------
 
-    // this.music.play(musicConfig);
     this.scale.on('resize', () => {
       console.log('resize');
       this.resize();
@@ -123,6 +116,25 @@ export default class MainScene extends Phaser.Scene {
     // this.canvas.addEventListener('mousemove', draw);
   }
 
+  createRandomCharacter() {
+    let randChar = Phaser.Math.Between(1, 20);
+    let char = this.add.sprite(0, 0, 'numbers', randChar);
+    char.setData('label', randChar % 10 || 10);
+    this.resetChar(char);
+    return char;
+  }
+
+  initChars() {
+    let totalNumOfSprite = 5;
+    for (let i = 1; i <= totalNumOfSprite; ++i) {
+      let char = this.createRandomCharacter();
+      this.chars.add(char)
+      // let char = this.add.sprite(0, 0, 'numbers', i);
+      // char.setData('label', i % 10 || 10);
+      // this.resetChar(char);
+    }
+  }
+
   resize() {
     console.log('Game Scale Width ' + this.game.scale.width, 'Game Scale Height ' + this.game.scale.height);
     this.cameras.resize(this.game.scale.width, this.game.scale.height);
@@ -144,14 +156,12 @@ export default class MainScene extends Phaser.Scene {
 
   update() {
     this.moveChar(this.chars, 2);
-    this.dropChar(this.chars);
-
     this.movePlayerManager();
-
     if (Phaser.Input.Keyboard.JustDown(this.spacebar)) {
       this.matchChar();
       this.clearDraw();
     }
+    this.dropChar(this.chars);
   }
 
   movePlayerManager() {
@@ -163,49 +173,56 @@ export default class MainScene extends Phaser.Scene {
     }
   }
 
-  draw() {
-
-  }
-
   matchChar() {
-    const imageData = this.context.getImageData(this.minX, this.minY, this.maxX - this.minX, this.maxY - this.minY);
-    const base64ed = this._arrayBufferToBase64(imageData.data);
-    console.log(base64ed);
+    let st = performance.now();
+    const width = (this.maxX - this.minX) || 1;
+    const height = (this.maxY - this.minY) || 1;
+    // console.log('minX: ' + this.minX + ' ' + ' minY: ' + this.minY + ' maxX: ' + this.maxX + ' maxY: ' + this.maxY +
+    //   ' width: ' + width + ' height: ' + height);
+    const imageData = this.context.getImageData(this.minX, this.minY, width, height);
+    let formData = new FormData();
+    formData.append('width', imageData.width);
+    formData.append('height', imageData.height);
+    formData.append('input', new Blob([imageData.data.buffer], {type: 'image/png'}));
+    formData.append('method', '9cnn');
+    formData.append('level', 'level1');
     fetch('http://127.0.0.1:5000/recognition', {
       mode: 'cors',
       method: 'post',
-      headers: {
-        'Content-type': 'application/json'
-      },
-      body: JSON.stringify({
-        level: 'level1',
-        width: imageData.width,
-        height: imageData.height,
-        input: base64ed
-      })
-    })
-      .then(res => {
-        console.log(res);
-        res.json().then(res => console.log(res));
+      body: formData
+    }).then(res => {
+      res.json().then(res => {
+        this.matchCharInScene(res['predictions']);
+        console.log(res['predictions']);
+        console.log('time spent recognition: ' + (performance.now() - st))
       });
-    // .then(res => console.log(res));
-    console.log(this.minX, this.minY, this.maxX - this.minX, this.maxY - this.minY);
-    console.log(imageData)
-    // imageData.
-    // let image = this.canvas.toDataURL('image/png').replace("image/png", "image/octet-stream");
-    // window.location.href = image;
-
-
+    });
+    // console.log(imageData)
   }
 
-  _arrayBufferToBase64(buffer) {
-    let binary = '';
-    const bytes = new Uint8Array(buffer);
-    const len = bytes.byteLength;
-    for (let i = 0; i < len; i++) {
-      binary += String.fromCharCode(bytes[i]);
+  matchCharInScene(predictions) {
+    let match = null;
+    this.chars.getChildren().forEach(go => {
+      console.log('x,y,label:' + go.x + ',' + go.y + ',' + go.getData('label'));
+    });
+    let charToDestroy = [];
+    for (let pred of predictions) {
+      if (pred === -1) continue;
+      for (let char of this.chars.getChildren()) {
+        if (char.y > 0 && char.getData('label') === (match || pred)) {
+          charToDestroy.push(char);
+          this.score += 1;
+          const scoreFormated = this.zeroPad(this.score, 6);
+          this.scoreLabel.text = "SCORE " + scoreFormated;
+          console.log('char: ' + char.getData('label'), 'charX, charY : ' + char.y);
+          // this.destroyChar(char);
+          match = pred;
+        }
+      }
+      if (match) break;
     }
-    return window.btoa(binary);
+
+    charToDestroy.forEach(char => char.destroy());
   }
 
   clearDraw() {
@@ -214,34 +231,39 @@ export default class MainScene extends Phaser.Scene {
     this.maxY = 0;
     this.minX = this.canvas.width;
     this.minY = this.canvas.height;
-    // this.resetChar()
   }
 
   moveChar(char) {
     char.getChildren().forEach((obj) => {
-      obj.y += obj.getData('speed');
       if (obj.y > this.game.config.height) {
-        this.endGame();
-        this.resetChar(obj)
+        // this.endGame();
+        this.destroyChar(obj)
       }
+      obj.y += obj.getData('speed');
     });
   }
 
   dropChar(chars) {
-    let numOfCharToDrop = gameSettings.maxNumberOfChar - chars.length;
-    if (numOfCharToDrop) {
-      // this.this.chars.addMultiple()
+    let numOfCharToDrop = gameSettings.maxNumberOfChar - this.chars.getChildren().length;
+    for (let i = 0; i < numOfCharToDrop; ++i) {
+      const char = this.createRandomCharacter();
+      this.chars.add(char);
     }
+    // for(let i = 0; i < num)
 
   };
 
   endGame() {
+    this.scene.restart()
   }
 
+  destroyChar(gameObject) {
+    gameObject.destroy();
+  }
 
   resetChar(gameObject) {
     gameObject.x = Phaser.Math.RND.pick(this.x_frac) * (this.game.scale.width - 63 * 2) + 63;
     gameObject.y = -Phaser.Math.Between(1, 4) * 100;
-    gameObject.setData('speed', Phaser.Math.Between(3, 7))
+    gameObject.setData('speed', Phaser.Math.Between(1, 4))
   }
 }
