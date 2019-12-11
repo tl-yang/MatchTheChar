@@ -1,5 +1,6 @@
-# MatchThechar
-Visit the backend [here](https://github.com/tl-yang/MatchTheProject-Backend)
+# MatchTheChar
+Visit the backend [here](https://github.com/tl-yang/MatchTheProject-Backend).  
+See the demo [here](https://www.youtube.com/watch?v=zbV2KXlr6xE&feature=emb_title).
 ## Requirements
 
 [Node.js](https://nodejs.org) is required to install dependencies and run scripts via `npm`.
