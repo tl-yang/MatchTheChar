@@ -1,0 +1,48 @@
+#gobtn {
+    position: absolute;
+    height: 10%;
+    width: 50%;
+    top: 10%;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+#score {
+    position: absolute;
+    height: 10%;
+    width: 30%;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    text-align: center;
+    margin: auto;
+}
+
+#levellist {
+    position: absolute;
+    text-align: center;
+    height: 10%;
+    width: 80%;
+    bottom: 10%;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+
+#menu {
+    display: none;
+    position: absolute;
+    background-image: url('../../assets/images/modal_bg.jpg');
+    box-shadow: 0 0 10px 10px white;
+    /*z-index: 100;*/
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+    /*text-align: center;*/
+    width: 70%;
+    height: 50%;
+}

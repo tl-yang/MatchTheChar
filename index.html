@@ -2,29 +2,25 @@
 <html>
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover shrink-to-fit=no"/>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+          integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
     <meta name="theme-color" content="#000000"/>
     <meta name="mobile-web-app-capable" content="yes"/>
     <title>MatchTheChar</title>
-    <style>
-        html,
-        body {
-            width: 100%;
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            background-color: #2a2a2a;
-            overflow: hidden;
-        }
-    </style>
     <noscript>Please enable javascript to continue using this application.</noscript>
 </head>
 <body>
 <div id="match-the-char"></div>
-<canvas id="canvas" style="position:absolute; top:0; left:0; overflow:hidden; width: 100%; height: 100%"></canvas>
-<select class="menu" id="optList" name="levelselect">
-    <option>aaa</option>
-</select>
-<button class="menu" id="gobtn">GO</button>
+<canvas id="canvas"></canvas>
+<div id="menu">
+    <select class="menu" id="levellist" name="levelselect">
+        <option value="level1">Level 1</option>
+        <option value="level2">Level 2</option>
+    </select>
+    <div id="score"> HERE</div>
+    <button type="button" class="btn btn-secondary menu" id="gobtn" style="">GO</button>
+</div>
 </body>
 </html>

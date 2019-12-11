@@ -1,5 +1,7 @@
 import Phaser from 'phaser'
 
+export const CHAR_WIDTH = 64;
+export const CHAR_HEIGHT = 63;
 export default class PreloadScene extends Phaser.Scene {
   constructor() {
     super("bootGame");
@@ -9,10 +11,17 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.image("background", "assets/images/bg_1920_1080.jpg");
     // this.load.image('numbers', 'assets/cjk/numbers.png');
     //
-    this.load.spritesheet("numbers", "assets/cjk/numbers.png", {
-      frameWidth: 64,
-      frameHeight: 63
+    this.load.spritesheet("level1", "assets/cjk/level1/level1.png", {
+      frameWidth: CHAR_WIDTH,
+      frameHeight: CHAR_HEIGHT,
     });
+
+    this.load.spritesheet('level2', 'assets/cjk/level2/level2.png', {
+      frameWidth: CHAR_WIDTH,
+      frameHeight: CHAR_HEIGHT
+    });
+    this.load.json('level1-StrokeMetadata','assets/cjk/level1/strokeMetadata.json');
+    // this.load.json('level2-StrokeMetadata','assets/cjk/level2/strokeMetadata.json');
     // this.load.spritesheet("ship2", "assets/spritesheets/ship2.png", {
     //   frameWidth: 32,
     //   frameHeight: 16
@@ -43,10 +52,10 @@ export default class PreloadScene extends Phaser.Scene {
     this.load.bitmapFont("pixelFont", "assets/font/font.png", "assets/font/font.xml");
 
     // 1.1 load sounds in both formats mp3 and ogg
-    this.load.audio("audio_beam", ["assets/sounds/beam.ogg", "assets/sounds/beam.mp3"]);
-    this.load.audio("audio_explosion", ["assets/sounds/explosion.ogg", "assets/sounds/explosion.mp3"]);
-    this.load.audio("audio_pickup", ["assets/sounds/pickup.ogg", "assets/sounds/pickup.mp3"]);
-    this.load.audio("music", ["assets/sounds/sci-fi_platformer12.ogg", "assets/sounds/sci-fi_platformer12.mp3"]);
+    // this.load.audio("audio_beam", ["assets/sounds/beam.ogg", "assets/sounds/beam.mp3"]);
+    // this.load.audio("audio_explosion", ["assets/sounds/explosion.ogg", "assets/sounds/explosion.mp3"]);
+    // this.load.audio("audio_pickup", ["assets/sounds/pickup.ogg", "assets/sounds/pickup.mp3"]);
+    // this.load.audio("music", ["assets/sounds/sci-fi_platformer12.ogg", "assets/sounds/sci-fi_platformer12.mp3"]);
   }
 
   create() {
